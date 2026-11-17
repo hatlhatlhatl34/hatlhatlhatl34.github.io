@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fort Clip Factory - Launch TikTok Authorization</title>
+<link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0f1a;color:#e8ecf4;font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:520px;margin:0 auto;padding:40px 20px}
+h1{font-size:20px;color:#fff;margin-bottom:8px}
+p{color:#c2cade;font-size:15px;margin:8px 0}
+a.btn{display:inline-block;margin-top:14px;background:linear-gradient(90deg,#7c5cff,#4cc9f0);color:#fff;font-weight:700;border-radius:10px;padding:14px 22px;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Opening TikTok authorization...</h1>
+<p>If nothing happens in 3 seconds, tap the button below.</p>
+<a class="btn" id="go" href="https://www.tiktok.com/v2/auth/authorize/?client_key=awbmc9u9zdsghkae&amp;scope=user.info.basic%2Cvideo.upload%2Cvideo.publish&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fhatlhatlhatl34.github.io%2Fcallback.html&amp;state=factory">Authorize @h15master</a>
+<script>
+(function(){
+  var url = "https://www.tiktok.com/v2/auth/authorize/?client_key=awbmc9u9zdsghkae&scope=user.info.basic%2Cvideo.upload%2Cvideo.publish&response_type=code&redirect_uri=https%3A%2F%2Fhatlhatlhatl34.github.io%2Fcallback.html&state=factory";
+  document.getElementById('go').href = url;
+  setTimeout(function(){ window.location.replace(url); }, 800);
+})();
+</script>
+</div>
+</body>
+</html>
