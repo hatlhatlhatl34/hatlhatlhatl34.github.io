@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authorization - Fort Clip Factory</title>
+<meta name="description" content="TikTok authorization redirect page for the Fort Clip Factory application.">
+<link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0f1a;color:#e8ecf4;font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:24px 20px 64px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;color:#fff;margin-bottom:18px}
+.brand .mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#7c5cff,#4cc9f0);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}
+h1{font-size:24px;margin:10px 0 10px;color:#fff}
+p{margin:10px 0;color:#c2cade}
+.box{border-radius:14px;padding:18px;margin:16px 0;border:1px solid}
+.ok{background:#0f1e17;border-color:#1f5940}
+.err{background:#241318;border-color:#5c2431}
+label{display:block;font-size:13px;color:#7e8aa0;margin:10px 0 4px}
+textarea{width:100%;min-height:96px;background:#101728;color:#9fb6ff;border:1px solid #22304e;border-radius:10px;padding:10px;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+button{margin-top:12px;background:linear-gradient(90deg,#7c5cff,#4cc9f0);color:#fff;font-weight:700;border:0;border-radius:10px;padding:12px 20px;font-size:15px;cursor:pointer}
+.field{background:#101728;border:1px solid #22304e;border-radius:10px;padding:10px 12px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;margin-top:6px}
+.k{color:#7e8aa0;font-size:13px}
+footer{margin-top:40px;border-top:1px solid #22304e;padding-top:16px;color:#7e8aa0;font-size:13px}
+footer a{color:#8ab4ff;text-decoration:none;margin-right:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="brand"><span class="mark">&#9889;</span> Fort Clip Factory</div>
+<div id="content"><p class="k">Checking the authorization result...</p></div>
+<script>
+(function(){
+  var c = document.getElementById('content');
+  var q = new URLSearchParams(location.search);
+  var code = q.get('code'), state = q.get('state'), err = q.get('error');
+  var desc = q.get('error_description') || '';
+  if (err) {
+    c.innerHTML = '<div class="box err"><h1>Authorization declined</h1><p>TikTok returned: <b>' + escapeHtml(err) + '</b></p>' + (desc ? '<p>' + escapeHtml(desc) + '</p>' : '') + '<p>You can close this page and retry the authorization link if you want to connect.</p></div>';
+  } else if (code) {
+    var full = location.href;
+    c.innerHTML = '<div class="box ok"><h1>Authorization received</h1><p>Fort Clip Factory successfully received your one-time authorization code. This code is short-lived, so finish the connection now.</p></div>' +
+      '<label>Authorization code</label><div class="field">' + escapeHtml(code) + '</div>' +
+      '<label>State</label><div class="field">' + escapeHtml(state || '-') + '</div>' +
+      '<label>Full redirect URL (copy this and paste it back into your setup chat)</label>' +
+      '<textarea id="u" readonly>' + escapeHtml(full) + '</textarea>' +
+      '<button id="cp">Copy full URL</button>' +
+      '<p class="k">Tip: if the copy button does not work on your device, long-press the box above and copy manually.</p>';
+    document.getElementById('cp').onclick = function(){
+      var t = document.getElementById('u');
+      t.focus(); t.select();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t.value).then(function(){ done(this) }.bind(this), function(){ legacy() });
+      } else { legacy(); }
+      function legacy(){ try { document.execCommand('copy'); done() } catch(e){} }
+      function done(btn){ var b = document.getElementById('cp'); b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy full URL'; }, 2000); }
+    };
+  } else {
+    c.innerHTML = '<div class="box" style="border-color:#22304e;background:#101728"><h1>Fort Clip Factory authorization page</h1><p>This page is the redirect target of the Fort Clip Factory TikTok authorization link. Open it from the authorization flow to connect your account.</p></div>';
+  }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+})();
+</script>
+<footer><a href="/">Home</a><a href="/privacy.html">Privacy Policy</a></footer>
+</div>
+</body>
+</html>
