@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fort Clip Factory - Sandbox Authorization</title>
+<link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0f1a;color:#e8ecf4;font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:540px;margin:0 auto;padding:40px 20px}
+h1{font-size:20px;color:#fff;margin-bottom:8px}
+p{color:#c2cade;font-size:15px;margin:10px 0}
+a.btn{display:inline-block;margin-top:12px;background:linear-gradient(90deg,#7c5cff,#4cc9f0);color:#fff;font-weight:700;border-radius:10px;padding:14px 22px;text-decoration:none}
+a.btn.alt{background:#26304d}
+.step{color:#7e8aa0;font-size:13px;margin-top:26px;line-height:1.75}
+code{background:#101728;border:1px solid #22304e;border-radius:6px;padding:2px 7px;color:#9fb6ff;font-size:12.5px;word-break:break-all}
+.warn{border:1px solid #5c4a24;background:#241f10;border-radius:10px;padding:12px 14px;color:#e8d9a8;font-size:13.5px;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>TikTok Sandbox Authorization</h1>
+<p>Tap the button while logged into TikTok as <b>@h15master</b> (the sandbox target user). No auto-redirect here - tap deliberately.</p>
+<a class="btn" href="https://www.tiktok.com/v2/auth/authorize/?client_key=sbaws3n3gohh30godq&amp;scope=user.info.basic%2Cvideo.upload%2Cvideo.publish&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fhatlhatlhatl34.github.io%2Fcallback.html&amp;state=factory">Authorize - full scopes</a>
+<p class="step">Requests <code>user.info.basic, video.upload, video.publish</code> - use this if all three scopes are enabled in your sandbox.</p>
+<a class="btn alt" href="https://www.tiktok.com/v2/auth/authorize/?client_key=sbaws3n3gohh30godq&amp;scope=user.info.basic%2Cvideo.upload&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fhatlhatlhatl34.github.io%2Fcallback.html&amp;state=factory">Authorize - basic scopes</a>
+<p class="step">Fallback: requests only <code>user.info.basic, video.upload</code> - use this if the full-scope button shows a scope error.</p>
+<div class="warn">Before tapping: the sandbox's Login Kit must contain the redirect URI <code>https://hatlhatlhatl34.github.io/callback.html</code> exactly (no typo, same slash pattern), and changes must be applied (Apply changes). After approving, copy the code shown on the callback page.</div>
+<div class="step">This link uses the <b>sandbox</b> client key (sb...), which is the only key TikTok's authorize page accepts for an unaudited app.</div>
+</div>
+</body>
+</html>
