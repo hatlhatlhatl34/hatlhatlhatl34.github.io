@@ -166,7 +166,8 @@ function renderKpis(){
 }
 
 function renderHealth(){
-  var rs=lastRuns; if(!rs)return;
+  var rs=lastRuns;
+  if(!rs){document.getElementById('health').innerHTML='<tbody><tr><td class="dim">runs data unavailable (API rate limit) — state.json still refreshing normally</td></tr></tbody>';return;}
   function lastOf(name,completedOnly){
     for(var i=0;i<rs.length;i++){var r=rs[i];
       if(r.name===name){ if(completedOnly&&r.status!=='completed')continue; return r; }
