@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fort Clip Factory — Live Ops Dashboard</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0f1a;color:#e8ecf4;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:24px 20px 64px}
+a{color:#8ab4ff;text-decoration:none}
+a:hover{text-decoration:underline}
+header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.5px;color:#fff}
+.brand .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#7c5cff,#4cc9f0);display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff}
+.clocks{font-size:13px;color:#9fb6ff;text-align:right;line-height:1.4}
+.live{display:inline-flex;align-items:center;gap:6px;background:#1b2338;border:1px solid #2c3a5c;border-radius:999px;padding:4px 12px;font-size:12px;color:#9fb6ff;margin:14px 0 4px}
+.live .dot{width:8px;height:8px;border-radius:50%;background:#31d158;animation:pulse 2s infinite}
+@keyframes pulse{0%{opacity:1}50%{opacity:.35}100%{opacity:1}}
+h1{font-size:26px;line-height:1.25;margin:14px 0 8px}
+.accent{background:linear-gradient(90deg,#9f8cff,#4cc9f0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#c2cade;font-size:14.5px;margin-bottom:18px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 14px}
+@media(max-width:860px){.cards{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.cards{grid-template-columns:1fr}}
+.card{background:#101728;border:1px solid #22304e;border-radius:14px;padding:14px 16px}
+.card .label{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:#7e8aa0;margin-bottom:6px}
+.card .big{font-size:26px;font-weight:700;color:#fff}
+.card .small{font-size:12.5px;color:#9fb6ff;margin-top:4px}
+.bar{height:7px;border-radius:4px;background:#1b2338;margin-top:9px;overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#9f8cff,#4cc9f0);transition:width .6s}
+.bar > i.warn{background:linear-gradient(90deg,#ffb340,#ff7d9c)}
+.bar > i.bad{background:linear-gradient(90deg,#ff5566,#ff7d9c)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.panel{background:#101728;border:1px solid #22304e;border-radius:14px;padding:16px}
+.panel h2{font-size:15px;color:#fff;margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline}
+.panel h2 span{font-size:12px;color:#7e8aa0;font-weight:400}
+.slot{display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid #1a2440;font-size:14px}
+.slot:last-child{border-bottom:none}
+.slot .t{color:#c2cade}
+.slot .d{color:#9fb6ff;font-variant-numeric:tabular-nums}
+.slot.next .t{color:#fff;font-weight:600}
+.slot.next .d{color:#4cc9f0}
+.run{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 2px;border-bottom:1px solid #1a2440;font-size:13.5px}
+.run:last-child{border-bottom:none}
+.run .n{color:#c2cade;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.run .when{color:#7e8aa0;font-size:12px;white-space:nowrap}
+.b{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600;white-space:nowrap}
+.b.success{background:#0c2b18;color:#31d158;border:1px solid #1d5c33}
+.b.failure{background:#2b0c12;color:#ff5566;border:1px solid #5c1d2a}
+.b.in_progress{background:#0c1f2b;color:#4cc9f0;border:1px solid #1d3d5c}
+.b.cancelled{background:#1b2338;color:#8b97ad;border:1px solid #2c3a5c}
+.health{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{background:#101728;border:1px solid #22304e;border-radius:999px;padding:5px 13px;font-size:12.5px;color:#9fb6ff}
+.chip.good{border-color:#1d5c33;color:#31d158}
+footer{margin-top:40px;border-top:1px solid #22304e;padding-top:18px;color:#7e8aa0;font-size:13px}
+footer a{margin-right:14px}
+.err{background:#2b0c12;border:1px solid #5c1d2a;color:#ff9c9c;border-radius:10px;padding:10px 14px;font-size:13.5px;margin:10px 0}
+.stale{color:#ffb340}
+#errbox{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><span class="mark">&#9889;</span> Fort Clip Factory</div>
+  <div class="clocks"><span id="cairoClock">—</span><br><span id="utcClock" style="color:#7e8aa0">—</span></div>
+</header>
+
+<span class="live"><span class="dot"></span> LIVE OPS <span id="updated" style="color:#7e8aa0;margin-left:6px">loading…</span></span>
+<h1>Factory status — <span class="accent">the 2-month bank era</span></h1>
+<p class="sub">Auto-refreshes every 60s from the repo's own <code style="background:#1b2338;padding:1px 6px;border-radius:6px;font-size:12.5px;color:#9fb6ff">data/state.json</code> + public GitHub Actions API. Zero backend, zero cost.</p>
+<div id="errbox" class="err"></div>
+
+<div class="cards">
+  <div class="card"><div class="label">Bank clips</div><div class="big" id="bankN">—</div><div class="small" id="bankRunway">—</div><div class="bar"><i id="bankBar" style="width:0%"></i></div></div>
+  <div class="card"><div class="label">YT quota today</div><div class="big" id="quotaN">—</div><div class="small" id="quotaReset">—</div><div class="bar"><i id="quotaBar" style="width:0%"></i></div></div>
+  <div class="card"><div class="label">Shorts live</div><div class="big" id="shortsN">—</div><div class="small" id="todayN">—</div><div class="bar"><i id="todayBar" style="width:0%"></i></div></div>
+  <div class="card"><div class="label">Harvested (era)</div><div class="big" id="harvN">—</div><div class="small" id="harvRun">—</div><div class="bar"><i id="harvBar" style="width:0%"></i></div></div>
+</div>
+
+<div class="grid2">
+  <div class="panel"><h2>Next grid slots <span>(Cairo, 00/06/12/18)</span></h2><div id="slots">—</div></div>
+  <div class="panel"><h2>Recent factory runs <span id="runsNote"></span></h2><div id="runs">—</div></div>
+</div>
+
+<div class="health" id="health"></div>
+
+<footer>
+  <a href="https://github.com/hatlhatlhatl34/fort-clip-factory" target="_blank" rel="noopener">factory repo</a>
+  <a href="index.html">app landing</a>
+  <a href="#" id="refreshLink">refresh now</a>
+  <span style="float:right">owner rule: publishing never stops while bank &ge; 4</span>
+</footer>
+</div>
+
+<script>
+const STATE_URL='https://raw.githubusercontent.com/hatlhatlhatl34/fort-clip-factory/main/data/state.json';
+const RUNS_URL='https://api.github.com/repos/hatlhatlhatl34/fort-clip-factory/actions/runs?per_page=15';
+const ERA_TARGET=250, QUOTA_MAX=10000, PER_DAY=4;
+const TRACK=new Set(['monthly-bank-harvest','hourly-heal','daily-clip-factory','crosspost-hour','crosspost-now','publish-now','kill-dup-81','hourly grid backstop (2-month bank era)','fb-username','watchdog','tiktok-token-refresh']);
+let lastState=null,lastRuns=null;
+
+function pad(n){return String(n).padStart(2,'0')}
+function fmtHM(d){return pad(d.getHours())+':'+pad(d.getMinutes())}
+function ago(iso){const s=(Date.now()-new Date(iso).getTime())/1000;if(s<60)return Math.floor(s)+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago'}
+function inHHMM(ms){if(ms<0)ms=0;const h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000);return h>0?h+'h '+m+'m':m+'m'}
+function cairoNow(){return new Date(new Date().toLocaleString('en-US',{timeZone:'Africa/Cairo'}))}
+function cairoToday(){const d=cairoNow();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+
+setInterval(()=>{const c=cairoNow(),u=new Date();
+ document.getElementById('cairoClock').textContent='Cairo '+fmtHM(c);
+ document.getElementById('utcClock').textContent='UTC '+pad(u.getUTCHours())+':'+pad(u.getUTCMinutes());},1000);
+
+async function fetchJSON(url,ttl){const bust=url.includes('?')?'&_b=':'?_b='+Date.now();
+ const r=await fetch(url+bust,{cache:'no-store'});if(!r.ok)throw new Error(url.split('/').pop()+' HTTP '+r.status);return r.json()}
+
+function renderState(s){
+ lastState=s;
+ const clips=(s.bank&&s.bank.clips)||[];
+ const bankN=clips.length;
+ const runway=Math.floor(bankN/PER_DAY);
+ document.getElementById('bankN').textContent=bankN+' / '+ERA_TARGET;
+ document.getElementById('bankRunway').textContent=runway+' days of grid left @'+PER_DAY+'/day';
+ const bb=document.getElementById('bankBar');bb.style.width=Math.min(100,bankN/ERA_TARGET*100)+'%';
+ bb.className=bankN>=16?'':(bankN>=4?' warn':' bad');
+
+ const q=s.quota||{};const used=q.units_used||0;
+ document.getElementById('quotaN').textContent=used.toLocaleString()+' / '+QUOTA_MAX.toLocaleString();
+ const next=new Date();next.setUTCHours(8,0,0,0);if(next.getTime()<=Date.now())next.setUTCDate(next.getUTCDate()+1);
+ document.getElementById('quotaReset').textContent='resets in '+inHHMM(next-Date.now())+' (08:00 UTC)';
+ const qb=document.getElementById('quotaBar');qb.style.width=Math.min(100,used/QUOTA_MAX*100)+'%';
+ qb.className=used>9000?' bad':(used>7500?' warn':'');
+
+ const shorts=(s.shorts||[]).filter(x=>x.video_id&&!x.owner_deleted);
+ document.getElementById('shortsN').textContent=shorts.length;
+ const today=cairoToday();const nToday=shorts.filter(x=>x.date===today).length;
+ document.getElementById('todayN').textContent=nToday+' published today (Cairo)';
+ const tb=document.getElementById('todayBar');tb.style.width=Math.min(100,nToday/PER_DAY*100)+'%';
+ tb.className=nToday>=PER_DAY?'':(nToday>=1?' warn':' bad');
+
+ const ht=(s.bank&&s.bank.harvested_total)||0;
+ document.getElementById('harvN').textContent=ht+' / '+ERA_TARGET;
+ document.getElementById('harvRun').textContent='era progress '+Math.round(ht/ERA_TARGET*100)+'%';
+ document.getElementById('harvBar').style.width=Math.min(100,ht/ERA_TARGET*100)+'%';
+
+ const now=Date.now();
+ const slots=((s.slots&&s.slots.short)||[]).map(t=>new Date(t)).sort((a,b)=>a-b);
+ const nexts=slots.filter(d=>d.getTime()>now).slice(0,6);
+ document.getElementById('slots').innerHTML=nexts.length?nexts.map((d,i)=>{
+  const cd=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Cairo',hour:'2-digit',minute:'2-digit'}).format(d);
+  const day=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Cairo',day:'2-digit',month:'short'}).format(d);
+  return '<div class="slot'+(i===0?' next':'')+'"><span class="t">'+day+' &middot; '+cd+' Cairo</span><span class="d">'+(i===0?'in '+inHHMM(d-now):'')+'</span></div>'}).join(''):'<div class="slot"><span class="t">no booked slots — grid will re-book on next factory run</span></div>';
+
+ const cp=s.crosspost_ids||{};const fb=cp.fb&&cp.fb.name;
+ const chips=[];
+ chips.push('<span class="chip good">&#10003; owner rule: never-stop publishing</span>');
+ if(s.dup_kill_81)chips.push('<span class="chip good">&#10003; dup guard active (#81 killed)</span>');
+ if(fb)chips.push('<span class="chip">crosspost: FB '+(fb)+' &middot; IG &middot; TikTok</span>');
+ const lastTs=s.last_run_ts?new Date(s.last_run_ts*1000):null;
+ if(lastTs)chips.push('<span class="chip">state written '+ago(lastTs.toISOString())+'</span>');
+ document.getElementById('health').innerHTML=chips.join('');
+}
+
+async function renderRuns(){
+ const d=await fetchJSON(RUNS_URL,0);
+ lastRuns=d;
+ const rs=(d.workflow_runs||[]).filter(r=>TRACK.has(r.name)).slice(0,10);
+ document.getElementById('runsNote').textContent='(public API)';
+ document.getElementById('runs').innerHTML=rs.map(r=>{
+  const st=r.status==='completed'?r.conclusion:r.status;
+  return '<div class="run"><span class="n">'+r.name.replace(/\s*\(2-month bank era\)\s*/,'')+'</span><span class="when">'+ago(r.created_at)+'</span><span class="b '+st+'">'+st.replace('in_progress','running')+'</span></div>'}).join('')
+  ||'<div class="run"><span class="n">no runs yet</span></div>';
+}
+
+async function refreshAll(){
+ try{
+  const s=await fetchJSON(STATE_URL,0);
+  document.getElementById('errbox').style.display='none';
+  await renderState(s);
+  const u=new Date();document.getElementById('updated').textContent='updated '+pad(u.getUTCHours())+':'+pad(u.getUTCMinutes())+' UTC';
+ }catch(e){const eb=document.getElementById('errbox');eb.style.display='block';
+  eb.innerHTML='fetch error: '+e.message+' — retrying on next tick'+(lastState?' (showing last good state <span class="stale">stale</span>)':'');
+  if(!lastState)throw e;}
+}
+
+document.getElementById('refreshLink').addEventListener('click',ev=>{ev.preventDefault();refreshAll().then(renderRuns).catch(()=>{})});
+refreshAll().catch(()=>{});
+renderRuns().catch(()=>{});
+setInterval(()=>refreshAll().catch(()=>{}),60000);
+setInterval(()=>renderRuns().catch(()=>{}),300000);
+</script>
+</body>
+</html>
