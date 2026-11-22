@@ -166,14 +166,21 @@ function renderState(s){
 }
 
 async function renderRuns(){
- const d=await fetchJSON(RUNS_URL,0);
+ let d;
+ try{d=await fetchJSON(RUNS_URL,0);}catch(e){d=null;}
+ const box=document.getElementById('runs');
+ if(!d||d.message||!Array.isArray(d.workflow_runs)){
+  box.innerHTML='<div class="run"><span class="n">GitHub API rate-limited from this IP — open <a href="https://github.com/hatlhatlhatl34/fort-clip-factory/actions" target="_blank" rel="noopener">Actions</a> directly</span></div>';
+  document.getElementById('runsNote').textContent='(rate-limited)';
+  return;
+ }
  lastRuns=d;
  const rs=(d.workflow_runs||[]).filter(r=>TRACK.has(r.name)).slice(0,10);
  document.getElementById('runsNote').textContent='(public API)';
- document.getElementById('runs').innerHTML=rs.map(r=>{
+ box.innerHTML=rs.map(r=>{
   const st=r.status==='completed'?r.conclusion:r.status;
   return '<div class="run"><span class="n">'+r.name.replace(/\s*\(2-month bank era\)\s*/,'')+'</span><span class="when">'+ago(r.created_at)+'</span><span class="b '+st+'">'+st.replace('in_progress','running')+'</span></div>'}).join('')
-  ||'<div class="run"><span class="n">no runs yet</span></div>';
+  ||'<div class="run"><span class="n">no tracked runs in the last 15</span></div>';
 }
 
 async function refreshAll(){
