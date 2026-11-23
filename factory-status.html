@@ -92,12 +92,18 @@
   </div>
 
   <div class="panel">
+    <h2>Scheduled shorts <span class="hint">&middot; booked grid slots &middot; each goes live automatically at its slot (Cairo time)</span></h2>
+    <table id="sched"><tbody><tr><td class="dim">loading…</td></tr></tbody></table>
+  </div>
+
+  <div class="panel">
     <h2>Last published shorts <span class="hint">&middot; newest first &middot; chips: IG / FB / TT</span></h2>
     <table id="live"><tbody><tr><td class="dim">loading…</td></tr></tbody></table>
   </div>
 
   <footer>
     <span class="rule">Owner rule 2026-11-22:</span> publishing never stops while bank &ge; 4 clips.
+    <span class="rule">Owner rule 2026-11-23:</span> strict grid — every upload is private + publishAt (YouTube-native schedule); no numbering in titles.
     <span class="rule">Owner rule 2026-11-23:</span> poison clips (archive sibling derivatives) are permanently skipped.
     &middot; Quota resets 08:00 UTC (Pacific midnight). &middot; Costs: <b>$0</b> — public repo Actions, GitHub Pages, client-side rendering.
     &middot; Code: <a href="https://github.com/hatlhatlhatl34/fort-clip-factory" target="_blank" rel="noopener">hatlhatlhatl34/fort-clip-factory</a>
@@ -212,6 +218,24 @@ function renderQueue(){
   document.getElementById('queue').innerHTML='<tbody>'+out+'</tbody>';
 }
 
+function renderScheduled(){
+  var s=lastState; if(!s||!s.shorts)return;
+  var now=Date.now();
+  var fut=s.shorts.filter(function(x){return x.video_id&&!x.owner_deleted&&x.slot&&Date.parse(x.slot)>now&&!x.verified;});
+  fut.sort(function(a,b){return Date.parse(a.slot)-Date.parse(b.slot);});
+  var out='';
+  fut.forEach(function(x){
+    var ms=Date.parse(x.slot)-now,h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000);
+    out+='<tr>'+
+      '<td class="mono dim" style="white-space:nowrap">'+slotLabel(x.slot)+'</td>'+
+      '<td class="mono">#'+esc(x.n)+'</td>'+
+      '<td class="trunc" title="'+esc(x.title)+'">'+esc(trunc(x.title,56))+'</td>'+
+      '<td><span class="badge b-run">SCHEDULED</span> <span class="dim">in '+(h>0?h+'h ':'')+m+'m</span></td>'+
+      '<td style="white-space:nowrap"><a href="https://youtu.be/'+esc(x.video_id)+'" target="_blank" rel="noopener">yt &#8599;</a></td></tr>';
+  });
+  if(!out)out='<tr><td class="dim">no pending scheduled shorts — the daily session (08:33 UTC) books the next 4 slots</td></tr>';
+  document.getElementById('sched').innerHTML='<tbody>'+out+'</tbody>';
+}
 function renderLive(){
   var s=lastState; if(!s||!s.shorts)return;
   var list=s.shorts.filter(function(x){return x.video_id&&!x.owner_deleted;});
@@ -241,7 +265,7 @@ function jget(u){return fetch(u,{cache:'no-store'}).then(function(r){if(!r.ok)th
 function loadState(){
   jget(STATE_URL+'?t='+Date.now()).then(function(s){
     lastState=s; banner(''); stamp();
-    renderKpis(); renderQueue(); renderLive(); renderHealth();
+    renderKpis(); renderQueue(); renderScheduled(); renderLive(); renderHealth();
   }).catch(function(e){banner('state.json fetch failed — '+e.message+' (raw CDN caches ~5 min; retry or open directly)');stamp();});
 }
 function loadRuns(){
